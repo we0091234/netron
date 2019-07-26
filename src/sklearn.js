@@ -11,14 +11,16 @@ sklearn.ModelFactory = class {
 
     match(context) {
         var extension = context.identifier.split('.').pop().toLowerCase();
-        if (extension == 'pkl' || extension == 'joblib') {
+        if (extension == 'pkl' || extension == 'joblib' || extension == 'model') {
             var buffer = context.buffer;
             // Reject PyTorch models with .pkl file extension.
             var torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
             if (buffer && buffer.length > 14 && buffer[0] == 0x80 && torch.every((v, i) => v == buffer[i + 2])) {
                 return false;
             }
-            return true;
+            if (buffer && buffer.length > 0 && buffer[buffer.length - 1] === 0x2E) {
+                return true;
+            }
         }
         return false;
     }
